@@ -1,0 +1,142 @@
+# Architecture of `tinywasm/font`
+
+Defines the **what** and **why** of typeface identity: the single origin from which
+web and PDF derive their font names. Abstract structure only — the exact API surface
+and the derivation tables live in [SPECS.md](SPECS.md).
+
+---
+
+## 1. What `tinywasm/font` is
+
+The module that **names the typeface of a product** and **derives the names of its
+faces**. Nothing else.
+
+It exists to make one claim true: *a product's typography is decided once.* Today the
+same decision is written twice, as a loose string in both ends — the `font-family`
+literal inside the `tinywasm/css` reset and the font paths registered with
+`tinywasm/pdf`. Nothing stops web and PDF of the same document from shipping
+different typefaces; today that is what happens. This module removes the second
+place where the name is written.
+
+It does **not** read, serve, subset or embed font files. It knows nothing about CSS
+or PDF. It ships no typeface of its own: every project declares its own.
+
+---
+
+## 2. Position in the suite
+
+One identity crosses two boundaries, and the crossing is what makes it a piece.
+
+| Module | Owns | Never does |
+|---|---|---|
+| `tinywasm/font` | **Identity** — what the product's typeface is called, and the names of its four faces | Read a file, know a medium, own a byte |
+| `tinywasm/css` | **Values** — the `--font-sans` token fed by the family name | Derive a face name |
+| `tinywasm/pdf` | **Delivery** — registers face files for rendering | Invent a face name |
+| `tinywasm/assetmin` | **Delivery** — ships the face files to the browser | Invent a face name |
+
+The direction of dependency is fixed: `css`, `pdf` and `assetmin` import `font`;
+`font` imports nobody.
+
+### 2.1 The partition WASM demands
+
+Two requirements of the product, apparently opposed:
+
+1. **No typeface is ever embedded.** Every project declares its own; no library
+   ships one by default.
+2. **The WASM binary only ever loads names, never bytes.** The frontend needs to
+   *know* which face to request; it does not need to carry it.
+
+They resolve with the partition the ecosystem already uses:
+
+| | `tinywasm/widget` | `tinywasm/css` | **`tinywasm/font`** |
+|---|---|---|---|
+| Build tag | none | `//go:build !wasm` | **none** |
+| Content | identity | values | **identity** |
+| Crosses to WASM | yes | no | **yes** |
+
+`widget` is the exact precedent: not a single build tag, only identity types. This
+piece lives on that side of the line. The paths and the bytes stay in the project's
+own `font.go`, which carries `//go:build !wasm`.
+
+**Review rule:** if a file of this package ever needs a build tag, the piece is
+wrongly split. Pure identity does not need one.
+
+---
+
+## 3. The contract
+
+Four concepts, each closing a failure mode of the loose-string era:
+
+- **`Family`** is the product's typeface name, a plain named string. It is the only
+  thing that crosses to WASM.
+- **`Style`** is a closed enum of four faces — exactly the four `tinywasm/pdf`
+  registers. A wrong style cannot be written: `"i"`, `"Italic"` or `"BI"` do not
+  compile.
+- **`Face`** is a *derived* file name, never written by hand. Deriving is what makes
+  web and PDF unable to diverge: there is a single origin of the name. The
+  extension is deliberately absent — the extension belongs to the medium (`.woff2`
+  for web, `.ttf` for PDF), not to the identity.
+- **`Declaration`** is what a project states in its `font.go`: the family and the
+  subfolder where its faces live. It has unexported fields and a single
+  construction path, `Declare`, so a partial declaration cannot exist.
+
+---
+
+## 4. Constraints
+
+- **Identity only.** If a `[]byte`, an `os.` call or an `embed` appears, the piece
+  left its responsibility.
+- **No maps.** Four styles are an array or a switch. A `map[Style]string` adds
+  dead weight to a TinyGo binary for zero benefit.
+- **No runtime errors.** `Declare` cannot fail: an empty string is not a defect the
+  runtime should report, and nothing else is left to validate — the types already
+  did the work at compile time.
+- **No defaults.** This library does not decide what a product looks like. A
+  project that does not declare its typeface gets none.
+- **Deterministic.** Deriving the same style twice yields the same name; emission
+  order is fixed by the enum values.
+
+---
+
+## 5. How a project uses it
+
+A product declares once, exactly as it already declares `css.go` or `svg.go`:
+
+```go
+//go:build !wasm
+
+package myapp
+
+func (m Module) RenderFonts() font.Declaration {
+    return font.Declare("Roboto", "fonts/")
+}
+```
+
+From this single declaration, three consumers get what they need without repeating
+the decision:
+
+- `tinywasm/css` takes the family for `--font-sans`.
+- `tinywasm/pdf` derives the four face names and appends `.ttf`.
+- `tinywasm/assetmin` delivers the face files to the browser.
+
+The WASM binary receives `"Roboto"` and the derivation rule — never a font byte.
+
+---
+
+## 6. The boundary with `tinywasm/assetmin`
+
+`assetmin` already owns a typed contract for a binary asset declared in a `!wasm`
+file: `ImageProcessor` (implemented by `tinywasm/image/min`, injected by the
+composition root). Fonts are the same case. `assetmin` will expose a `FontProcessor`
+pattern, calqued on `ImageProcessor`, and serve the faces `Declaration` names.
+
+The contract at the seam is `Declaration` — a type this package owns. A consumer
+never re-creates it locally, and a missing method here is a defect in this library,
+not an excuse to patch downstream.
+
+---
+
+## Related documents
+
+- [SPECS.md](SPECS.md) — exact public surface and derivation tables.
+- [CONSTRUCTION_HARNESS.md](CONSTRUCTION_HARNESS.md) — the ecosystem principles this piece follows.
