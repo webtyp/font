@@ -13,10 +13,20 @@ func Fonts() font.Declaration {
 }
 ```
 
-Ready-to-use faces live in [faces/](faces/) — Roboto and Inter, subsetted to Latin
-with `€`, four real faces each. Copy the ones you want into your project's
-`config/fonts/`. They are files, not code: no `.go` here embeds them, so they never
-enter a binary.
+**Bring your own faces.** Download them, buy them, or reuse ones you already have —
+this module says nothing about where they come from. It requires exactly two things:
+
+- the four files live in the folder you pass to `Declare(...)` — you choose it, and
+  `Dir()` is relative to the project root;
+- each is named what `Face(Style)` returns, plus `.ttf` — `Roboto-Regular.ttf`,
+  `Roboto-Bold.ttf`, `Roboto-Italic.ttf`, `Roboto-BoldItalic.ttf`.
+
+If you have no family chosen yet, [faces/](faces/) offers two verified ones — Roboto
+and Inter, subsetted to Latin with `€`, four real faces each. They are files, not
+code: no `.go` here embeds them, so they never enter a binary.
+
+Importing this root is free and safe from any medium; importing a `font` subpackage
+is a backend decision — the file that does it carries `//go:build !wasm`.
 
 ## Documentation
 

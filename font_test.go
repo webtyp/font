@@ -13,7 +13,7 @@ func TestConsumerPath(t *testing.T) {
 		style Style
 		name  string
 	}{
-		{Regular, "Roboto"},
+		{Regular, "Roboto-Regular"},
 		{Bold, "Roboto-Bold"},
 		{Italic, "Roboto-Italic"},
 		{BoldItalic, "Roboto-BoldItalic"},

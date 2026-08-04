@@ -42,7 +42,7 @@ d := font.Declare("Roboto", "fonts/")
 d.Family()                    // "Roboto"
 d.Dir()                       // "fonts/"
 
-d.Family().Face(font.Regular)     // "Roboto"
+d.Family().Face(font.Regular)     // "Roboto-Regular"
 d.Family().Face(font.Bold)        // "Roboto-Bold"
 d.Family().Face(font.Italic)      // "Roboto-Italic"
 d.Family().Face(font.BoldItalic)  // "Roboto-BoldItalic"
@@ -102,7 +102,7 @@ estilo.
 ```
 config/
 └── fonts/
-    ├── Roboto.ttf
+    ├── Roboto-Regular.ttf
     ├── Roboto-Bold.ttf
     ├── Roboto-Italic.ttf
     └── Roboto-BoldItalic.ttf
@@ -181,7 +181,7 @@ if err != nil {
 doc := pdf.NewDocument(tf)
 ```
 
-`LoadDeclared` deriva las cuatro rutas (`fonts/Roboto.ttf`, `fonts/Roboto-Bold.ttf`…)
+`LoadDeclared` deriva las cuatro rutas (`fonts/Roboto-Regular.ttf`, `fonts/Roboto-Bold.ttf`…)
 a partir de la declaración. Tú no las escribes.
 
 ---

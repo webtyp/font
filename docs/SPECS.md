@@ -43,8 +43,13 @@ Invariants:
 
 - No exported field on `Declaration`; access only via `Family()` and `Dir()`.
 - `Declare` never returns an error and never panics.
-- No `map[` anywhere in the package source or tests.
-- No `[]byte`, `os.` or `embed` anywhere in the package source or tests.
+- No `map[`, `[]byte`, `os.` or `embed` anywhere in the package's non-test
+  source, and no build directive in either form — enforced by
+  `TestRootIsWasmSafe`. Test files are exempt: they never enter a binary.
+- Importing this root is free and safe from any medium; importing a `font`
+  subpackage is a backend decision, and the file that does it carries
+  `//go:build !wasm`. The root never imports its own subpackages — that arrow
+  only points outward.
 
 ---
 
@@ -54,7 +59,7 @@ With `f = Family("Roboto")`:
 
 | `Style` | `f.Face(s)` |
 |---|---|
-| `Regular` | `Roboto` |
+| `Regular` | `Roboto-Regular` |
 | `Bold` | `Roboto-Bold` |
 | `Italic` | `Roboto-Italic` |
 | `BoldItalic` | `Roboto-BoldItalic` |
@@ -64,8 +69,8 @@ Rules:
 1. `Face` returns exactly the strings above, **without** extension or directory.
 2. A `Style` value outside the four constants yields `Regular`'s result — the
    derived name can never be a suffix-less family of an unrelated face.
-3. Derivation is deterministic and allocation-free in shape: `Regular` returns the
-   family untouched.
+3. Derivation is deterministic and allocation-free in shape: every face is the
+   family plus a `-Style` suffix — the family alone is never a face name.
 
 For any non-empty family, the four derived names are pairwise distinct.
 
@@ -85,6 +90,18 @@ With `d = Declare(Family("Roboto"), "fonts/")`:
 `Dir` is returned exactly as declared; this package neither adds nor strips a
 trailing slash.
 
+`Dir()` is *where the faces live, in the medium of whoever reads it* — it is
+relative, not canonical, and there is no universal root:
+
+| Consumer | Medium | Origin it hangs from |
+|---|---|---|
+| `assetmin` (build) | disk | the project root (`Config.RootDir`) |
+| `pdf` in CLI | disk | the working directory |
+| `pdf` in WASM | HTTP | the page origin |
+
+What never varies is `Family()`: it is global — the single origin that keeps web
+and PDF looking alike — while `Dir()` is per medium.
+
 ---
 
 ## 4. Consumer-shaped proof
@@ -99,7 +116,7 @@ PDF view:
 
 | consumer line | value |
 |---|---|
-| `d.Dir() + d.Family().Face(Regular) + ".ttf"` | `fonts/Roboto.ttf` |
+| `d.Dir() + d.Family().Face(Regular) + ".ttf"` | `fonts/Roboto-Regular.ttf` |
 | `d.Dir() + d.Family().Face(Bold) + ".ttf"` | `fonts/Roboto-Bold.ttf` |
 | `d.Dir() + d.Family().Face(Italic) + ".ttf"` | `fonts/Roboto-Italic.ttf` |
 | `d.Dir() + d.Family().Face(BoldItalic) + ".ttf"` | `fonts/Roboto-BoldItalic.ttf` |
@@ -108,7 +125,7 @@ Web view — the same pairs, `.ttf` replaced by `.woff2`:
 
 | consumer line | value |
 |---|---|
-| `d.Dir() + d.Family().Face(Regular) + ".woff2"` | `fonts/Roboto.woff2` |
+| `d.Dir() + d.Family().Face(Regular) + ".woff2"` | `fonts/Roboto-Regular.woff2` |
 | `d.Dir() + d.Family().Face(Bold) + ".woff2"` | `fonts/Roboto-Bold.woff2` |
 | `d.Dir() + d.Family().Face(Italic) + ".woff2"` | `fonts/Roboto-Italic.woff2` |
 | `d.Dir() + d.Family().Face(BoldItalic) + ".woff2"` | `fonts/Roboto-BoldItalic.woff2` |

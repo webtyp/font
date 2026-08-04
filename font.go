@@ -21,11 +21,12 @@ const (
 )
 
 // Face is a face's file name, derived — never written by hand. Without
-// extension: each medium adds its own (.ttf for PDF, .woff2 for web).
+// extension: each medium adds its own (.ttf for PDF, .woff2 for web). All
+// four styles carry a "-Style" suffix, Regular included.
 func (f Family) Face(s Style) string {
 	switch s {
 	case Regular:
-		return string(f)
+		return string(f) + "-Regular"
 	case Bold:
 		return string(f) + "-Bold"
 	case Italic:
@@ -33,5 +34,5 @@ func (f Family) Face(s Style) string {
 	case BoldItalic:
 		return string(f) + "-BoldItalic"
 	}
-	return string(f)
+	return string(f) + "-Regular"
 }
