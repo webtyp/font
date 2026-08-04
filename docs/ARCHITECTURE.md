@@ -55,8 +55,10 @@ They resolve with the partition the ecosystem already uses:
 | Crosses to WASM | yes | no | **yes** |
 
 `widget` is the exact precedent: not a single build tag, only identity types. This
-piece lives on that side of the line. The paths and the bytes stay in the project's
-own `font.go`, which carries `//go:build !wasm`.
+piece lives on that side of the line, and so does the project's own `config/fonts.go`
+— a family name and a folder name are identity, and the frontend needs both to
+request a face (§5). What stays on the `!wasm` side are the **values**: the stylesheet
+in `config/css.go`, and the font files themselves, which no Go file ever carries.
 
 **Review rule:** if a file of this package ever needs a build tag, the piece is
 wrongly split. Pure identity does not need one.
@@ -100,17 +102,28 @@ Four concepts, each closing a failure mode of the loose-string era:
 
 ## 5. How a project uses it
 
-A product declares once, exactly as it already declares `css.go` or `svg.go`:
+A product declares once, in `config/fonts.go`, as a package-level function:
 
 ```go
-//go:build !wasm
+package config
 
-package myapp
+import "github.com/tinywasm/font"
 
-func (m Module) RenderFonts() font.Declaration {
+func Fonts() font.Declaration {
     return font.Declare("Roboto", "fonts/")
 }
 ```
+
+**That file carries no build tag, and the omission is the design.** A `//go:build
+!wasm` file is not compiled for the browser, and the frontend is precisely where the
+PDF is generated: that code has to know the family is `"Roboto"` to request
+`fonts/Roboto-Bold.ttf`. Tagging the declaration would put it out of reach of its own
+consumer. A declaration is identity, and identity crosses (§2.1).
+
+Its neighbour `config/css.go` **does** carry `//go:build !wasm`, because it returns a
+stylesheet full of values. Both live in the same Go package, so `RootCSS()` calls
+`Fonts()` directly — no extraction mechanism is involved, and `tinywasm/ssr` needs no
+change.
 
 From this single declaration, three consumers get what they need without repeating
 the decision:
