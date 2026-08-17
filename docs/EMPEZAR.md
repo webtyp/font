@@ -224,7 +224,7 @@ Dónde ocurre cada cosa:
 | Momento | Quién | Qué hace |
 |---|---|---|
 | **Compilación** | `config/css.go` | Lee `Fonts().Family()` → emite `--font-sans: "Roboto", …` |
-| **Compilación** | `assetmin` | Lee la declaración → copia los `.ttf` a la carpeta pública y emite el `@font-face` |
+| **Compilación** | `sitec` | Lee la declaración → copia los `.ttf` a la carpeta pública y emite el `@font-face` |
 | **Carga de la página** | navegador | Descarga `fonts/Roboto-Bold.ttf` desde la URL del `@font-face` |
 | **Ejecución (WASM)** | tu código | Llama a `Fonts()` → deriva `fonts/Roboto-Bold.ttf` |
 | **Ejecución (WASM)** | `tinywasm/pdf` | Pide ese `.ttf` por `fetch` — **la caché ya lo tiene** — y lo incrusta |
@@ -286,11 +286,11 @@ Para ser honestos sobre el estado actual:
 | **`pdf.LoadDeclared(font.Declaration)`** | ❌ **falta** — hoy hay que escribir las cuatro rutas a mano, que es justo el problema que esto resuelve |
 | **`css.FontStack(font.Family)`** | ❌ falta |
 | **`css.FontSans` (el token)** | ❌ falta |
-| **`assetmin` sirviendo los `.ttf`** | ❌ falta |
+| **`sitec` sirviendo los `.ttf`** | ❌ falta |
 
 Hasta que existan `LoadDeclared` y `FontStack`, el paso 3 y el paso 4 de esta guía no
 compilan: el puente entre la declaración y sus dos consumidores está sin construir.
-Eso es lo que cubren los planes de `tinywasm/pdf`, `tinywasm/css` y `tinywasm/assetmin`.
+Eso es lo que cubren los planes de `tinywasm/pdf`, `tinywasm/css` y `tinywasm/sitec`.
 
 ---
 

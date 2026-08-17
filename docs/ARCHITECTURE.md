@@ -32,9 +32,9 @@ One identity crosses two boundaries, and the crossing is what makes it a piece.
 | `tinywasm/font` | **Identity** — what the product's typeface is called, and the names of its four faces | Read a file, know a medium, own a byte |
 | `tinywasm/css` | **Values** — the `--font-sans` token fed by the family name | Derive a face name |
 | `tinywasm/pdf` | **Delivery** — registers face files for rendering | Invent a face name |
-| `tinywasm/assetmin` | **Delivery** — ships the face files to the browser | Invent a face name |
+| `tinywasm/sitec` | **Delivery** — ships the face files to the browser | Invent a face name |
 
-The direction of dependency is fixed: `css`, `pdf` and `assetmin` import `font`;
+The direction of dependency is fixed: `css`, `pdf` and `sitec` import `font`;
 `font` imports nobody.
 
 ### 2.1 The partition WASM demands
@@ -130,17 +130,17 @@ the decision:
 
 - `tinywasm/css` takes the family for `--font-sans`.
 - `tinywasm/pdf` derives the four face names and appends `.ttf`.
-- `tinywasm/assetmin` delivers the face files to the browser.
+- `tinywasm/sitec` delivers the face files to the browser.
 
 The WASM binary receives `"Roboto"` and the derivation rule — never a font byte.
 
 ---
 
-## 6. The boundary with `tinywasm/assetmin`
+## 6. The boundary with `tinywasm/sitec`
 
-`assetmin` already owns a typed contract for a binary asset declared in a `!wasm`
+`sitec` already owns a typed contract for a binary asset declared in a `!wasm`
 file: `ImageProcessor` (implemented by `tinywasm/image/min`, injected by the
-composition root). Fonts are the same case. `assetmin` will expose a `FontProcessor`
+composition root). Fonts are the same case. `sitec` will expose a `FontProcessor`
 pattern, calqued on `ImageProcessor`, and serve the faces `Declaration` names.
 
 The contract at the seam is `Declaration` — a type this package owns. A consumer

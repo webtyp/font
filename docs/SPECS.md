@@ -95,7 +95,7 @@ relative, not canonical, and there is no universal root:
 
 | Consumer | Medium | Origin it hangs from |
 |---|---|---|
-| `assetmin` (build) | disk | the project root (`Config.RootDir`) |
+| `sitec` (build) | disk | the project root (`Config.RootDir`) |
 | `pdf` in CLI | disk | the working directory |
 | `pdf` in WASM | HTTP | the page origin |
 
@@ -110,7 +110,7 @@ A test in this library that walks a consumer's real path must, with
 `d := font.Declare("Roboto", "fonts/")`, assert exactly the lines below, built the
 same way a consumer builds them — plain concatenation of `Dir()` + `Face()` +
 medium extension. This mirrors what `tinywasm/pdf` registers and what
-`tinywasm/assetmin` serves.
+`tinywasm/sitec` serves.
 
 PDF view:
 
