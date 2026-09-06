@@ -22,7 +22,7 @@ font.Family("Roboto").Face(font.Bold)   // "Roboto-Bold"  →  faces/Roboto-Bold
 
 Ambas cumplen lo que el ecosistema exige de una tipografía:
 
-- **TrueType estática.** El motor de `tinywasm/pdf` lee `glyf`/`loca`: ignora los ejes
+- **TrueType estática.** El motor de `webtyp/pdf` lee `glyf`/`loca`: ignora los ejes
   de una fuente variable y no puede cargar contornos CFF (`.otf`).
 - **Cuatro caras reales.** Regular, Bold, Italic y BoldItalic son archivos distintos —
   la cursiva es una cursiva, no la recta inclinada por el motor.
@@ -81,7 +81,7 @@ los ignora sin que eso rompa nada.
 
 ## Por qué no está DroidSans
 
-Estuvo en `tinywasm/pdf` y **no se traslada**, aunque pese menos (83.508 B): tiene sólo
+Estuvo en `webtyp/pdf` y **no se traslada**, aunque pese menos (83.508 B): tiene sólo
 dos caras, le falta el glifo `€` y no trae cursiva real —los consumidores apuntaban los
 estilos `"I"`/`"BI"` a los archivos rectos, así que nunca hubo cursiva—. Está
 descontinuada desde Android 4.0 (2011).

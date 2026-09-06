@@ -3,8 +3,8 @@ package font
 import "testing"
 
 // TestConsumerPath walks the real path of a consumer: declare a family, derive
-// the four faces, and build the file names tinywasm/pdf registers and
-// tinywasm/assetmin serves — as plain string concatenation, the way a consumer
+// the four faces, and build the file names webtyp/pdf registers and
+// webtyp/assetmin serves — as plain string concatenation, the way a consumer
 // writes it. If writing this test were awkward, the API would be awkward.
 func TestConsumerPath(t *testing.T) {
 	d := Declare("Roboto", "fonts/")

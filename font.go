@@ -10,7 +10,7 @@ package font
 type Family string
 
 // Style names a face. The set is closed: these four, and exactly the four
-// tinywasm/pdf registers.
+// webtyp/pdf registers.
 type Style uint8
 
 const (

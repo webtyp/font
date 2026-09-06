@@ -1,4 +1,4 @@
-# Architecture of `tinywasm/font`
+# Architecture of `webtyp/font`
 
 Defines the **what** and **why** of typeface identity: the single origin from which
 web and PDF derive their font names. Abstract structure only — the exact API surface
@@ -6,15 +6,15 @@ and the derivation tables live in [SPECS.md](SPECS.md).
 
 ---
 
-## 1. What `tinywasm/font` is
+## 1. What `webtyp/font` is
 
 The module that **names the typeface of a product** and **derives the names of its
 faces**. Nothing else.
 
 It exists to make one claim true: *a product's typography is decided once.* Today the
 same decision is written twice, as a loose string in both ends — the `font-family`
-literal inside the `tinywasm/css` reset and the font paths registered with
-`tinywasm/pdf`. Nothing stops web and PDF of the same document from shipping
+literal inside the `webtyp/css` reset and the font paths registered with
+`webtyp/pdf`. Nothing stops web and PDF of the same document from shipping
 different typefaces; today that is what happens. This module removes the second
 place where the name is written.
 
@@ -29,10 +29,10 @@ One identity crosses two boundaries, and the crossing is what makes it a piece.
 
 | Module | Owns | Never does |
 |---|---|---|
-| `tinywasm/font` | **Identity** — what the product's typeface is called, and the names of its four faces | Read a file, know a medium, own a byte |
-| `tinywasm/css` | **Values** — the `--font-sans` token fed by the family name | Derive a face name |
-| `tinywasm/pdf` | **Delivery** — registers face files for rendering | Invent a face name |
-| `tinywasm/sitec` | **Delivery** — ships the face files to the browser | Invent a face name |
+| `webtyp/font` | **Identity** — what the product's typeface is called, and the names of its four faces | Read a file, know a medium, own a byte |
+| `webtyp/css` | **Values** — the `--font-sans` token fed by the family name | Derive a face name |
+| `webtyp/pdf` | **Delivery** — registers face files for rendering | Invent a face name |
+| `webtyp/sitec` | **Delivery** — ships the face files to the browser | Invent a face name |
 
 The direction of dependency is fixed: `css`, `pdf` and `sitec` import `font`;
 `font` imports nobody.
@@ -48,7 +48,7 @@ Two requirements of the product, apparently opposed:
 
 They resolve with the partition the ecosystem already uses:
 
-| | `tinywasm/widget` | `tinywasm/css` | **`tinywasm/font`** |
+| | `webtyp/widget` | `webtyp/css` | **`webtyp/font`** |
 |---|---|---|---|
 | Build tag | none | `//go:build !wasm` | **none** |
 | Content | identity | values | **identity** |
@@ -71,7 +71,7 @@ Four concepts, each closing a failure mode of the loose-string era:
 
 - **`Family`** is the product's typeface name, a plain named string. It is the only
   thing that crosses to WASM.
-- **`Style`** is a closed enum of four faces — exactly the four `tinywasm/pdf`
+- **`Style`** is a closed enum of four faces — exactly the four `webtyp/pdf`
   registers. A wrong style cannot be written: `"i"`, `"Italic"` or `"BI"` do not
   compile.
 - **`Face`** is a *derived* file name, never written by hand. Deriving is what makes
@@ -107,7 +107,7 @@ A product declares once, in `config/fonts.go`, as a package-level function:
 ```go
 package config
 
-import "github.com/tinywasm/font"
+import "webtyp.com/font"
 
 func Fonts() font.Declaration {
     return font.Declare("Roboto", "fonts/")
@@ -122,24 +122,24 @@ consumer. A declaration is identity, and identity crosses (§2.1).
 
 Its neighbour `config/css.go` **does** carry `//go:build !wasm`, because it returns a
 stylesheet full of values. Both live in the same Go package, so `RootCSS()` calls
-`Fonts()` directly — no extraction mechanism is involved, and `tinywasm/ssr` needs no
+`Fonts()` directly — no extraction mechanism is involved, and `webtyp/ssr` needs no
 change.
 
 From this single declaration, three consumers get what they need without repeating
 the decision:
 
-- `tinywasm/css` takes the family for `--font-sans`.
-- `tinywasm/pdf` derives the four face names and appends `.ttf`.
-- `tinywasm/sitec` delivers the face files to the browser.
+- `webtyp/css` takes the family for `--font-sans`.
+- `webtyp/pdf` derives the four face names and appends `.ttf`.
+- `webtyp/sitec` delivers the face files to the browser.
 
 The WASM binary receives `"Roboto"` and the derivation rule — never a font byte.
 
 ---
 
-## 6. The boundary with `tinywasm/sitec`
+## 6. The boundary with `webtyp/sitec`
 
 `sitec` already owns a typed contract for a binary asset declared in a `!wasm`
-file: `ImageProcessor` (implemented by `tinywasm/image/min`, injected by the
+file: `ImageProcessor` (implemented by `webtyp/image/min`, injected by the
 composition root). Fonts are the same case. `sitec` will expose a `FontProcessor`
 pattern, calqued on `ImageProcessor`, and serve the faces `Declaration` names.
 

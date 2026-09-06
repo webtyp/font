@@ -1,4 +1,4 @@
-# Empezar con `tinywasm/font`
+# Empezar con `webtyp/font`
 
 Guía para configurar la tipografía de un proyecto. Pensada para leerse de una vez,
 sin conocer el resto del ecosistema.
@@ -10,7 +10,7 @@ sin conocer el resto del ecosistema.
 Tu producto tiene dos salidas visuales:
 
 - **La página web**, que se ve con CSS.
-- **El PDF**, que se genera con `tinywasm/pdf`.
+- **El PDF**, que se genera con `webtyp/pdf`.
 
 Las dos tienen que verse con la misma tipografía. Si la web usa Roboto y el PDF usa
 DroidSans, el mismo presupuesto se ve de dos maneras distintas según dónde lo mires.
@@ -19,7 +19,7 @@ El problema no es elegir la fuente. Es que **hoy hay que escribir su nombre en d
 sitios**, y nada obliga a que coincidan. Basta con que alguien cambie uno y se olvide
 del otro.
 
-`tinywasm/font` elimina el segundo sitio.
+`webtyp/font` elimina el segundo sitio.
 
 ---
 
@@ -58,7 +58,7 @@ nombre.
                   fonts/Roboto-Bold.ttf
                      ┌────────┴────────┐
                      ▼                 ▼
-              WEB (@font-face)    PDF (tinywasm/pdf)
+              WEB (@font-face)    PDF (webtyp/pdf)
                      └──── mismo archivo ────┘
 ```
 
@@ -68,7 +68,7 @@ diverjan: no hay dos archivos que puedan desincronizarse.
 ### ¿Por qué TTF y no WOFF2?
 
 WOFF2 es el formato habitual en la web porque comprime mejor. Pero el motor de
-`tinywasm/pdf` lee las tablas `glyf`/`loca` de TrueType: **no sabe leer WOFF2**. Y el
+`webtyp/pdf` lee las tablas `glyf`/`loca` de TrueType: **no sabe leer WOFF2**. Y el
 navegador sí sabe leer TTF (`format("truetype")`, soportado en todas partes).
 
 Así que TTF es el único formato que sirve a los dos. Y sale ganando, medido sobre
@@ -143,7 +143,7 @@ Aquí declaras. **Este archivo NO lleva build tag.**
 ```go
 package config
 
-import "github.com/tinywasm/font"
+import "webtyp.com/font"
 
 // Fonts declara la tipografía del producto. Es el único sitio donde se escribe.
 func Fonts() font.Declaration {
@@ -227,7 +227,7 @@ Dónde ocurre cada cosa:
 | **Compilación** | `sitec` | Lee la declaración → copia los `.ttf` a la carpeta pública y emite el `@font-face` |
 | **Carga de la página** | navegador | Descarga `fonts/Roboto-Bold.ttf` desde la URL del `@font-face` |
 | **Ejecución (WASM)** | tu código | Llama a `Fonts()` → deriva `fonts/Roboto-Bold.ttf` |
-| **Ejecución (WASM)** | `tinywasm/pdf` | Pide ese `.ttf` por `fetch` — **la caché ya lo tiene** — y lo incrusta |
+| **Ejecución (WASM)** | `webtyp/pdf` | Pide ese `.ttf` por `fetch` — **la caché ya lo tiene** — y lo incrusta |
 
 Los dos caminos —CSS y PDF— parten de la misma llamada a `Fonts()` y terminan en el
 mismo archivo. Ahí está la garantía.
@@ -290,7 +290,7 @@ Para ser honestos sobre el estado actual:
 
 Hasta que existan `LoadDeclared` y `FontStack`, el paso 3 y el paso 4 de esta guía no
 compilan: el puente entre la declaración y sus dos consumidores está sin construir.
-Eso es lo que cubren los planes de `tinywasm/pdf`, `tinywasm/css` y `tinywasm/sitec`.
+Eso es lo que cubren los planes de `webtyp/pdf`, `webtyp/css` y `webtyp/sitec`.
 
 ---
 

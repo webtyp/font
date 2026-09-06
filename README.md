@@ -1,4 +1,4 @@
-# tinywasm/font
+# webtyp/font
 <img src="docs/img/badges.svg">
 
 Typeface identity shared by web and PDF: WASM-safe names, no embedded bytes.

@@ -1,4 +1,4 @@
-# Specification — `tinywasm/font`
+# Specification — `webtyp/font`
 
 Strict functional requirements: exact public surface, exact derivation tables,
 exact failure conditions. Structure and reasoning are not repeated here — see
@@ -16,7 +16,7 @@ these tables byte for byte.
 type Family string
 
 // Style names a face. The set is closed: these four, and exactly the four
-// tinywasm/pdf registers.
+// webtyp/pdf registers.
 type Style uint8
 
 const (
@@ -109,8 +109,8 @@ and PDF looking alike — while `Dir()` is per medium.
 A test in this library that walks a consumer's real path must, with
 `d := font.Declare("Roboto", "fonts/")`, assert exactly the lines below, built the
 same way a consumer builds them — plain concatenation of `Dir()` + `Face()` +
-medium extension. This mirrors what `tinywasm/pdf` registers and what
-`tinywasm/sitec` serves.
+medium extension. This mirrors what `webtyp/pdf` registers and what
+`webtyp/sitec` serves.
 
 PDF view:
 

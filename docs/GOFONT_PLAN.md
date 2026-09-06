@@ -26,7 +26,7 @@ prohíbe:
 > **The glue is written once, in the library that owns it.** If every application would
 > write the same wiring, that wiring belongs to a piece — not to the applications.
 
-Todos los proyectos que usen `tinywasm/font` copiarían ese mismo script. Además
+Todos los proyectos que usen `webtyp/font` copiarían ese mismo script. Además
 arrastra una cadena ajena al ecosistema —Python, `fonttools`, `apt`— que ninguna otra
 pieza necesita, y el ecosistema no usa bash: sus nueve herramientas (`gonew`, `gotest`,
 `gopush`, …) son CLIs en Go.
@@ -44,7 +44,7 @@ módulo. Ponerla en `devflow` partiría el tema en dos repos y obligaría a `dev
 saber de subsets, rangos Unicode y tablas OpenType.
 
 Principio 9: una responsabilidad, una pieza. **Todo lo tipográfico vive en
-`tinywasm/font`.**
+`webtyp/font`.**
 
 ### Esto no rompe la regla de "identidad pura"
 
@@ -53,7 +53,7 @@ se salió de su responsabilidad. `cmd/gofont` usa las tres cosas. No hay contrad
 
 **La regla es sobre el paquete `font`, no sobre el módulo.** `cmd/gofont` es
 `package main` — nadie lo importa, nunca entra en un binario ajeno, y no puede
-contaminar lo que `font` exporta. Es el mismo reparto que ya usa `tinywasm/pdf`, cuyo
+contaminar lo que `font` exporta. Es el mismo reparto que ya usa `webtyp/pdf`, cuyo
 `cmd/` no afecta a lo que el frontend enlaza.
 
 **Verificación:** tras el cambio, `grep -rn "\[\]byte\|os\.\|embed" *.go` en la **raíz**
